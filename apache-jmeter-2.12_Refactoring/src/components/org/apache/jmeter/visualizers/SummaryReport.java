@@ -54,6 +54,8 @@ import org.apache.jorphan.gui.RateRenderer;
 import org.apache.jorphan.gui.RendererUtils;
 import org.apache.jorphan.reflect.Functor;
 import org.apache.jorphan.util.JOrphanUtils;
+import java.text.DecimalFormat;
+import java.text.Format;
 
 /**
  * Simpler (lower memory) version of Aggregate Report (StatVisualizer).
@@ -114,12 +116,27 @@ public class SummaryReport extends AbstractVisualizer implements Clearable, Acti
             null, // Mean
             null, // Min
             null, // Max
-            new NumberRenderer("#0.00"), // Std Dev.
-            new NumberRenderer("#0.00%"), // Error %age
-            new RateRenderer("#.0"),      // Throughput
-            new NumberRenderer("#0.00"),  // kB/sec
-            new NumberRenderer("#.0"),    // avg. pageSize
+            new NumberRenderer("#0.00"), // Std Dev. //$NON-NLS-1$
+            new NumberRenderer("#0.00%"), // Error %age //$NON-NLS-1$
+            new RateRenderer("#.0"),      // Throughput //$NON-NLS-1$
+            new NumberRenderer("#0.00"),  // kB/sec //$NON-NLS-1$
+            new NumberRenderer("#.0"), 
         };
+    
+    // Column formats
+        static final Format[] FORMATS =
+            new Format[]{
+                null, // Label
+                null, // count
+                null, // Mean
+                null, // Min
+                null, // Max
+                new DecimalFormat("#0.00"), // Std Dev. //$NON-NLS-1$
+                new DecimalFormat("#0.00%"), // Error %age //$NON-NLS-1$
+                new DecimalFormat("#.0"),      // Throughput //$NON-NLS-1$
+                new DecimalFormat("#0.00"),  // kB/sec //$NON-NLS-1$
+                new DecimalFormat("#.0"),    // avg. pageSize //$NON-NLS-1$
+             };
 
     public SummaryReport() {
         super();
@@ -254,7 +271,7 @@ public class SummaryReport extends AbstractVisualizer implements Clearable, Acti
             FileWriter writer = null;
             try {
                 writer = new FileWriter(chooser.getSelectedFile());
-                CSVSaveService.saveCSVStats(model,writer, saveHeaders.isSelected());
+                CSVSaveService.saveCSVStats(StatGraphVisualizer.getAllTableData(model, FORMATS),writer);
             } catch (FileNotFoundException e) {
                 JMeterUtils.reportErrorToUser(e.getMessage(), "Error saving data");
             } catch (IOException e) {

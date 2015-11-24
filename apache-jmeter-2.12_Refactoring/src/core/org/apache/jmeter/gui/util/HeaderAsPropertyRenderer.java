@@ -19,6 +19,7 @@
 package org.apache.jmeter.gui.util;
 
 import java.awt.Component;
+import java.text.MessageFormat;
 
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
@@ -34,11 +35,19 @@ import org.apache.jmeter.util.JMeterUtils;
 public class HeaderAsPropertyRenderer extends DefaultTableCellRenderer {
 
     private static final long serialVersionUID = 240L;
+    private Object[][] columnsMsgParameters;
 
     public HeaderAsPropertyRenderer() {
+    	        this(null);
+    	    }
+    
+    public HeaderAsPropertyRenderer(Object[][] columnsMsgParameters) {
         super();
+        this.columnsMsgParameters = columnsMsgParameters;
     }
 
+    
+    
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value,
             boolean isSelected, boolean hasFocus, int row, int column) {
@@ -68,6 +77,10 @@ public class HeaderAsPropertyRenderer extends DefaultTableCellRenderer {
         if (value == null){
             return "";
         }
-        return JMeterUtils.getResString(value.toString());
+        if(columnsMsgParameters != null && columnsMsgParameters[column] != null) {
+        	            return MessageFormat.format(JMeterUtils.getResString(value.toString()), columnsMsgParameters[column]);
+        	        } else {
+        	            return JMeterUtils.getResString(value.toString());
+        	        }
     }
 }
