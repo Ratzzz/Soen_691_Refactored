@@ -489,7 +489,7 @@ public class StatGraphVisualizer extends AbstractVisualizer implements Clearable
         graphPanel.setTitle(graphTitle.getText());
         graphPanel.setMaxLength(maxLength);
         graphPanel.setMaxYAxisScale(maxYAxisScale);
-        graphPanel.setXAxisLabels(getAxisLabels());
+        graphPanel.setXAxisLabels(model.getAxisLabels());
         graphPanel.setXAxisTitle(JMeterUtils.getResString((String) columnsList.getSelectedItem()));;
         graphPanel.setYAxisLabels(this.yAxisLabel);
         graphPanel.setYAxisTitle(this.yAxisTitle);
@@ -536,19 +536,6 @@ public class StatGraphVisualizer extends AbstractVisualizer implements Clearable
                 cpt++;
             }
             return data;
-        }
-        // API expects null, not empty array
-        return null;
-    }
-
-    public String[] getAxisLabels() {
-        if (model.getRowCount() > 1) {
-            int count = model.getRowCount() -1;
-            String[] labels = new String[count];
-            for (int idx=0; idx < count; idx++) {
-                labels[idx] = (String)model.getValueAt(idx,0);
-            }
-            return labels;
         }
         // API expects null, not empty array
         return null;
