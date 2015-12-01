@@ -94,7 +94,13 @@ import java.text.Format;
  *
  */
 public class StatGraphVisualizer extends AbstractVisualizer implements Clearable, ActionListener {
-    private static final long serialVersionUID = 240L;
+    private StatGraphVisualizerProduct3 statGraphVisualizerProduct3 = new StatGraphVisualizerProduct3();
+
+	private StatGraphVisualizerProduct2 statGraphVisualizerProduct2 = new StatGraphVisualizerProduct2();
+
+	private StatGraphVisualizerProduct statGraphVisualizerProduct = new StatGraphVisualizerProduct();
+
+	private static final long serialVersionUID = 240L;
 
     private static final Logger log = LoggingManager.getLoggerForClass();
     
@@ -239,35 +245,11 @@ public class StatGraphVisualizer extends AbstractVisualizer implements Clearable
 
     private List<BarGraph> eltList = new ArrayList<BarGraph>();
 
-    private JCheckBox columnSelection = new JCheckBox(JMeterUtils.getResString("aggregate_graph_column_selection"), false); //$NON-NLS-1$
-
-    private JTextField columnMatchLabel = new JTextField();
-
-    private JButton applyFilterBtn = new JButton(JMeterUtils.getResString("graph_apply_filter")); // $NON-NLS-1$
-
-    private JCheckBox caseChkBox = new JCheckBox(JMeterUtils.getResString("search_text_chkbox_case"), false); // $NON-NLS-1$
-
-    private JCheckBox regexpChkBox = new JCheckBox(JMeterUtils.getResString("search_text_chkbox_regexp"), true); // $NON-NLS-1$
-
     private JComboBox titleFontNameList = new JComboBox(StatGraphProperties.getFontNameMap().keySet().toArray());
 
     private JComboBox titleFontSizeList = new JComboBox(StatGraphProperties.fontSize);
 
     private JComboBox titleFontStyleList = new JComboBox(StatGraphProperties.getFontStyleMap().keySet().toArray());
-
-    private JComboBox valueFontNameList = new JComboBox(StatGraphProperties.getFontNameMap().keySet().toArray());
-
-    private JComboBox valueFontSizeList = new JComboBox(StatGraphProperties.fontSize);
-
-    private JComboBox valueFontStyleList = new JComboBox(StatGraphProperties.getFontStyleMap().keySet().toArray());
-
-    private JComboBox fontNameList = new JComboBox(StatGraphProperties.getFontNameMap().keySet().toArray());
-
-    private JComboBox fontSizeList = new JComboBox(StatGraphProperties.fontSize);
-
-    private JComboBox fontStyleList = new JComboBox(StatGraphProperties.getFontStyleMap().keySet().toArray());
-
-    private JComboBox legendPlacementList = new JComboBox(StatGraphProperties.getPlacementNameMap().keySet().toArray());
 
     private JCheckBox drawOutlinesBar = new JCheckBox(JMeterUtils.getResString("aggregate_graph_draw_outlines"), true); // Default checked // $NON-NLS-1$
 
@@ -280,10 +262,6 @@ public class StatGraphVisualizer extends AbstractVisualizer implements Clearable
     private Color colorForeGraph = Color.BLACK;
     
     private int nbColToGraph = 1;
-
-    private Pattern pattern = null;
-
-    private transient Matcher matcher = null;
 
     public StatGraphVisualizer() {
         super();
@@ -359,10 +337,10 @@ public class StatGraphVisualizer extends AbstractVisualizer implements Clearable
     public void add(final SampleResult res) {
         final String sampleLabel = res.getSampleLabel();
         // Sampler selection
-        if (columnSelection.isSelected() && pattern != null) {
-            matcher = pattern.matcher(sampleLabel);
+        if (statGraphVisualizerProduct2.getColumnSelection().isSelected() && statGraphVisualizerProduct2.getPattern() != null) {
+            statGraphVisualizerProduct2.setMatcher(statGraphVisualizerProduct2.getPattern().matcher(sampleLabel));
         }
-        if ((matcher == null) || (matcher.find())) {
+        if ((statGraphVisualizerProduct2.getMatcher() == null) || (statGraphVisualizerProduct2.getMatcher().find())) {
             JMeterUtils.runSafe(new Runnable() {
                 @Override
                 public void run() {
@@ -431,7 +409,7 @@ public class StatGraphVisualizer extends AbstractVisualizer implements Clearable
         axisPane.add(createGraphXAxisPane(), BorderLayout.WEST);
         axisPane.add(createGraphYAxisPane(), BorderLayout.CENTER);
         settingsPane.add(axisPane);
-        settingsPane.add(createLegendPane());
+        settingsPane.add(statGraphVisualizerProduct.createLegendPane());
 
         tabbedGraph.addTab(JMeterUtils.getResString("aggregate_graph_tab_settings"), settingsPane); //$NON-NLS-1$
         tabbedGraph.addTab(JMeterUtils.getResString("aggregate_graph_tab_graph"), graphPanel); //$NON-NLS-1$
@@ -500,17 +478,17 @@ public class StatGraphVisualizer extends AbstractVisualizer implements Clearable
         graphPanel.setShowGrouping(numberShowGrouping.isSelected());
         graphPanel.setValueOrientation(valueLabelsVertical.isSelected());
         graphPanel.setLegendPlacement(StatGraphProperties.getPlacementNameMap()
-                .get(legendPlacementList.getSelectedItem()).intValue());
+                .get(statGraphVisualizerProduct.getLegendPlacementList().getSelectedItem()).intValue());
 
         graphPanel.setTitleFont(new Font(StatGraphProperties.getFontNameMap().get(titleFontNameList.getSelectedItem()),
                 StatGraphProperties.getFontStyleMap().get(titleFontStyleList.getSelectedItem()).intValue(),
                 Integer.parseInt((String) titleFontSizeList.getSelectedItem())));
-        graphPanel.setLegendFont(new Font(StatGraphProperties.getFontNameMap().get(fontNameList.getSelectedItem()),
-                StatGraphProperties.getFontStyleMap().get(fontStyleList.getSelectedItem()).intValue(),
-                Integer.parseInt((String) fontSizeList.getSelectedItem())));
-        graphPanel.setValueFont(new Font(StatGraphProperties.getFontNameMap().get(valueFontNameList.getSelectedItem()),
-                StatGraphProperties.getFontStyleMap().get(valueFontStyleList.getSelectedItem()).intValue(),
-                Integer.parseInt((String) valueFontSizeList.getSelectedItem())));
+        graphPanel.setLegendFont(new Font(StatGraphProperties.getFontNameMap().get(statGraphVisualizerProduct.getFontNameList().getSelectedItem()),
+                StatGraphProperties.getFontStyleMap().get(statGraphVisualizerProduct.getFontStyleList().getSelectedItem()).intValue(),
+                Integer.parseInt((String) statGraphVisualizerProduct.getFontSizeList().getSelectedItem())));
+        graphPanel.setValueFont(new Font(StatGraphProperties.getFontNameMap().get(statGraphVisualizerProduct3.getValueFontNameList().getSelectedItem()),
+                StatGraphProperties.getFontStyleMap().get(statGraphVisualizerProduct3.getValueFontStyleList().getSelectedItem()).intValue(),
+                Integer.parseInt((String) statGraphVisualizerProduct3.getValueFontSizeList().getSelectedItem())));
 
         graphPanel.setHeight(height);
         graphPanel.setWidth(width);
@@ -651,29 +629,30 @@ public class StatGraphVisualizer extends AbstractVisualizer implements Clearable
                 graphWidth.setEnabled(true);
                 graphHeight.setEnabled(true);
             }
-        } else if (eventSource == columnSelection) {
-            if (columnSelection.isSelected()) {
-                columnMatchLabel.setEnabled(true);
-                applyFilterBtn.setEnabled(true);
-                caseChkBox.setEnabled(true);
-                regexpChkBox.setEnabled(true);
+        } else if (eventSource == statGraphVisualizerProduct2.getColumnSelection()) {
+            if (statGraphVisualizerProduct2.getColumnSelection().isSelected()) {
+                statGraphVisualizerProduct2.getColumnMatchLabel().setEnabled(true);
+                statGraphVisualizerProduct2.getApplyFilterBtn().setEnabled(true);
+                statGraphVisualizerProduct2.getCaseChkBox().setEnabled(true);
+                statGraphVisualizerProduct2.getRegexpChkBox().setEnabled(true);
             } else {
-                columnMatchLabel.setEnabled(false);
-                applyFilterBtn.setEnabled(false);
-                caseChkBox.setEnabled(false);
-                regexpChkBox.setEnabled(false);
+                statGraphVisualizerProduct2.getColumnMatchLabel().setEnabled(false);
+                statGraphVisualizerProduct2.getApplyFilterBtn().setEnabled(false);
+                statGraphVisualizerProduct2.getCaseChkBox().setEnabled(false);
+                statGraphVisualizerProduct2.getRegexpChkBox().setEnabled(false);
                 // Force reload data
                 forceReloadData = true;
             }
         }
         // Not 'else if' because forceReloadData 
-        if (eventSource == applyFilterBtn || forceReloadData) {
-            if (columnSelection.isSelected() && columnMatchLabel.getText() != null
-                    && columnMatchLabel.getText().length() > 0) {
-                pattern = createPattern(columnMatchLabel.getText());
+        if (eventSource == statGraphVisualizerProduct2.getApplyFilterBtn() || forceReloadData) {
+            if (statGraphVisualizerProduct2.getColumnSelection().isSelected() && statGraphVisualizerProduct2.getColumnMatchLabel().getText() != null
+                    && statGraphVisualizerProduct2.getColumnMatchLabel().getText().length() > 0) {
+                statGraphVisualizerProduct2.setPattern(statGraphVisualizerProduct2
+						.createPattern(statGraphVisualizerProduct2.getColumnMatchLabel().getText()));
             } else if (forceReloadData) {
-                pattern = null;
-                matcher = null;
+                statGraphVisualizerProduct2.setPattern(null);
+                statGraphVisualizerProduct2.setMatcher(null);
             }
             if (getFile() != null && getFile().length() > 0) {
                 clearData();
@@ -754,7 +733,7 @@ public class StatGraphVisualizer extends AbstractVisualizer implements Clearable
 
         JPanel optionsPanel = new JPanel();
         optionsPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        optionsPanel.add(createGraphFontValuePane());
+        optionsPanel.add(statGraphVisualizerProduct3.createGraphFontValuePane());
         optionsPanel.add(drawOutlinesBar);
         optionsPanel.add(numberShowGrouping);
         optionsPanel.add(valueLabelsVertical);
@@ -769,7 +748,7 @@ public class StatGraphVisualizer extends AbstractVisualizer implements Clearable
                 JMeterUtils.getResString("aggregate_graph_column_settings"))); // $NON-NLS-1$
         columnPane.add(barPane, BorderLayout.NORTH);
         columnPane.add(Box.createRigidArea(new Dimension(0,3)), BorderLayout.CENTER);
-        columnPane.add(createGraphSelectionSubPane(), BorderLayout.SOUTH);
+        columnPane.add(statGraphVisualizerProduct2.createGraphSelectionSubPane(this), BorderLayout.SOUTH);
         
         return columnPane;
     }
@@ -782,37 +761,6 @@ public class StatGraphVisualizer extends AbstractVisualizer implements Clearable
         colorBtn.addActionListener(this);
         colorBtn.setBackground(barGraph.getBackColor());
         return colorBtn;
-    }
-
-    private JPanel createGraphSelectionSubPane() {
-        Font font = new Font("SansSerif", Font.PLAIN, 10);
-        // Search field
-        JPanel searchPanel = new JPanel();
-        searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.X_AXIS));
-        searchPanel.setBorder(BorderFactory.createEmptyBorder(3, 0, 3, 0));
-
-        searchPanel.add(columnSelection);
-        columnMatchLabel.setEnabled(false);
-        applyFilterBtn.setEnabled(false);
-        caseChkBox.setEnabled(false);
-        regexpChkBox.setEnabled(false);
-        columnSelection.addActionListener(this);
-
-        searchPanel.add(columnMatchLabel);
-        searchPanel.add(Box.createRigidArea(new Dimension(5,0)));
-
-        // Button
-        applyFilterBtn.setFont(font);
-        applyFilterBtn.addActionListener(this);
-        searchPanel.add(applyFilterBtn);
-
-        // checkboxes
-        caseChkBox.setFont(font);
-        searchPanel.add(caseChkBox);
-        regexpChkBox.setFont(font);
-        searchPanel.add(regexpChkBox);
-
-        return searchPanel;
     }
 
     private JPanel createGraphTitlePane() {
@@ -839,22 +787,6 @@ public class StatGraphVisualizer extends AbstractVisualizer implements Clearable
         titlePane.add(titleNamePane, BorderLayout.NORTH);
         titlePane.add(titleStylePane, BorderLayout.SOUTH);
         return titlePane;
-    }
-
-    private JPanel createGraphFontValuePane() {       
-        JPanel fontValueStylePane = new JPanel();
-        fontValueStylePane.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        fontValueStylePane.add(GuiUtils.createLabelCombo(JMeterUtils.getResString("aggregate_graph_value_font"), //$NON-NLS-1$
-                valueFontNameList));
-        valueFontNameList.setSelectedIndex(0); // default: sans serif
-        fontValueStylePane.add(GuiUtils.createLabelCombo(JMeterUtils.getResString("aggregate_graph_size"), //$NON-NLS-1$
-                valueFontSizeList));
-        valueFontSizeList.setSelectedItem(StatGraphProperties.fontSize[2]); // default: 10
-        fontValueStylePane.add(GuiUtils.createLabelCombo(JMeterUtils.getResString("aggregate_graph_style"), //$NON-NLS-1$
-                valueFontStyleList));
-        valueFontStyleList.setSelectedItem(JMeterUtils.getResString("fontstyle.normal")); // default: normal //$NON-NLS-1$
-
-        return fontValueStylePane;
     }
 
     private JPanel createGraphDimensionPane() {
@@ -902,54 +834,5 @@ public class StatGraphVisualizer extends AbstractVisualizer implements Clearable
                 JMeterUtils.getResString("aggregate_graph_yaxis_group"))); // $NON-NLS-1$
         yAxisPane.add(maxValueYAxisLabel);
         return yAxisPane;
-    }
-
-    /**
-     * Create pane for legend settings
-     * @return Legend pane
-     */
-    private JPanel createLegendPane() {
-        JPanel legendPanel = new JPanel();
-        legendPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        legendPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createEtchedBorder(),
-                JMeterUtils.getResString("aggregate_graph_legend"))); // $NON-NLS-1$
-
-        legendPanel.add(GuiUtils.createLabelCombo(JMeterUtils.getResString("aggregate_graph_legend_placement"), //$NON-NLS-1$
-                legendPlacementList));
-        legendPlacementList.setSelectedItem(JMeterUtils.getResString("aggregate_graph_legend.placement.bottom"));  // $NON-NLS-1$ // default: bottom
-        legendPanel.add(GuiUtils.createLabelCombo(JMeterUtils.getResString("aggregate_graph_font"), //$NON-NLS-1$
-                fontNameList));
-        fontNameList.setSelectedIndex(0); // default: sans serif
-        legendPanel.add(GuiUtils.createLabelCombo(JMeterUtils.getResString("aggregate_graph_size"), //$NON-NLS-1$
-                fontSizeList));
-        fontSizeList.setSelectedItem(StatGraphProperties.fontSize[2]); // default: 10
-        legendPanel.add(GuiUtils.createLabelCombo(JMeterUtils.getResString("aggregate_graph_style"), //$NON-NLS-1$
-                fontStyleList));
-        fontStyleList.setSelectedItem(JMeterUtils.getResString("fontstyle.normal"));  // $NON-NLS-1$ // default: normal
-
-        return legendPanel;
-    }
-
-    /**
-     * @param textToFind
-     * @return pattern ready to search
-     */
-    private Pattern createPattern(String textToFind) {
-        String textToFindQ = Pattern.quote(textToFind);
-        if (regexpChkBox.isSelected()) {
-            textToFindQ = textToFind;
-        }
-        Pattern pattern = null;
-        try {
-            if (caseChkBox.isSelected()) {
-                pattern = Pattern.compile(textToFindQ);
-            } else {
-                pattern = Pattern.compile(textToFindQ, Pattern.CASE_INSENSITIVE);
-            }
-        } catch (PatternSyntaxException pse) {
-            return null;
-        }
-        return pattern;
     }
 }

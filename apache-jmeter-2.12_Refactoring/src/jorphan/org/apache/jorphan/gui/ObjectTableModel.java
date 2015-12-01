@@ -303,4 +303,16 @@ public class ObjectTableModel extends DefaultTableModel {
             addRow(val);
         }
     }
+
+	public String[] getAxisLabels() {
+		if (getRowCount() > 1) {
+			int count = getRowCount() - 1;
+			String[] labels = new String[count];
+			for (int idx = 0; idx < count; idx++) {
+				labels[idx] = (String) getValueAt(idx, 0);
+			}
+			return labels;
+		}
+		return null;
+	}
 }
